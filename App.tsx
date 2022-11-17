@@ -1,57 +1,54 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * Generated with the TypeScript template
- * https://github.com/react-native-community/react-native-template-typescript
- *
- * @format
- */
+import React, {useState} from 'react';
+import {SafeAreaView, StyleSheet, Alert} from 'react-native';
+import {NativeBaseProvider, Flex, VStack} from 'native-base';
+import {colors} from './src/utils/styles.util';
+import {SearchInput} from './src/components/Input';
+import {URL_MATCHER} from './src/constants/regex.constant';
+import {HTTPProtocol} from './src/components/Input/enums/http.enum';
 
-import React from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  // StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: colors.white,
+  },
+});
 
 const App = () => {
+  // @DEV: Normally form state should be managed by formik, redux form etc...
+  // But since this is a simple demo its doing the job.
+  const [url, setUrl] = useState<string>('');
+  const [error, setError] = useState<boolean>(false);
+
+  const handleChangeText = (text: string): void => {
+    setUrl(text.toLowerCase());
+  };
+
+  const onSearch = (protocol: HTTPProtocol): void => {
+    const regex = new RegExp(URL_MATCHER);
+    const fullURL = `${protocol.toLowerCase()}://${url}`;
+    setError(!url || !regex.test(fullURL));
+
+    if (!error) {
+      Alert.alert(fullURL);
+    }
+  };
+
   return (
-    <SafeAreaView>
-      <StatusBar barStyle="light-content" />
-      <ScrollView contentInsetAdjustmentBehavior="automatic">
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: '#ffff',
-          }}>
-          <Text>This is a test</Text>
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+    <NativeBaseProvider>
+      <SafeAreaView>
+        <Flex height="full" style={styles.container}>
+          <VStack padding="2">
+            <SearchInput
+              hasError={error}
+              onSearch={onSearch}
+              errorMessage="Please enter a valid url."
+              onChangeText={handleChangeText}
+              value={url}
+            />
+          </VStack>
+        </Flex>
+      </SafeAreaView>
+    </NativeBaseProvider>
   );
 };
-
-// const styles = StyleSheet.create({
-//   sectionContainer: {
-//     marginTop: 32,
-//     paddingHorizontal: 24,
-//   },
-//   sectionTitle: {
-//     fontSize: 24,
-//     fontWeight: '600',
-//   },
-//   sectionDescription: {
-//     marginTop: 8,
-//     fontSize: 18,
-//     fontWeight: '400',
-//   },
-//   highlight: {
-//     fontWeight: '700',
-//   },
-// });
 
 export default App;
