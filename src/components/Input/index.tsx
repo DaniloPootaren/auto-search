@@ -9,6 +9,8 @@ import {
   Select,
 } from 'native-base';
 import {HTTPProtocol} from './enums/http.enum';
+import {StyleSheet} from 'react-native';
+
 
 interface Props extends IInputProps {
   onSearch: (protocol: HTTPProtocol) => void;
@@ -50,13 +52,19 @@ export const SearchInput = (props: Props): ReactElement => {
           InputLeftElement={
             <Select
               selectedValue={protocol}
+              h="12"
+              borderColor="transparent"
               placeholder="http://"
               mt={1}
               onValueChange={itemValue =>
                 setProtocol(itemValue as HTTPProtocol)
               }>
               {httpOptions.map(option => (
-                <Select.Item label={option.label} value={option.value} />
+                <Select.Item
+                  label={option.label}
+                  value={option.value}
+                  key={`${option.label}-${option.value}`}
+                />
               ))}
             </Select>
           }
