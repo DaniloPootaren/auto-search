@@ -7,15 +7,17 @@ import {
   FormControl,
   WarningOutlineIcon,
   Select,
+  Heading,
 } from 'native-base';
+import Animated, {FadeOut} from 'react-native-reanimated';
 import {HTTPProtocol} from './enums/http.enum';
-import {StyleSheet} from 'react-native';
-
 
 interface Props extends IInputProps {
-  onSearch: (protocol: HTTPProtocol) => void;
+  onSearch?: (protocol: HTTPProtocol) => void;
   errorMessage?: string;
   hasError: boolean;
+  showSearchBtn: boolean;
+  handleTextchange: (protocol: HTTPProtocol, text: string) => void;
 }
 
 type HttpOption = {
@@ -24,15 +26,31 @@ type HttpOption = {
 };
 
 export const SearchInput = (props: Props): ReactElement => {
-  const {onSearch, errorMessage, hasError} = props;
+  const {onSearch, errorMessage, hasError, showSearchBtn, handleTextchange} =
+    props;
   const [protocol, setProtocol] = useState<HTTPProtocol>(HTTPProtocol.HTTP);
+  const [showHeading, setShowHeading] = useState<boolean>(true);
 
   const httpOptions: HttpOption[] = [
     {label: 'HTTP', value: HTTPProtocol.HTTP},
     {label: 'HTTPS', value: HTTPProtocol.HTTPS},
   ];
+
+  const handleSearch = (): void => {
+    setShowHeading(false);
+    if (onSearch) {
+      onSearch(protocol);
+    }
+  };
   return (
-    <Box alignItems="center">
+    <Box alignItems="flex-start" mb={10}>
+      {showHeading && (
+        <Animated.View exiting={FadeOut}>
+          <Heading mb="5" color={'gray.500'}>
+            Search
+          </Heading>
+        </Animated.View>
+      )}
       <FormControl isInvalid={hasError}>
         <Input
           type="text"
@@ -40,14 +58,18 @@ export const SearchInput = (props: Props): ReactElement => {
           py="0"
           {...props}
           InputRightElement={
-            <Button
-              size="xs"
-              rounded="none"
-              w="1/6"
-              h="full"
-              onPress={() => onSearch(protocol)}>
-              Search
-            </Button>
+            showSearchBtn ? (
+              <Button
+                size="xs"
+                rounded="none"
+                w="1/6"
+                h="full"
+                onPress={handleSearch}>
+                Search
+              </Button>
+            ) : (
+              <></>
+            )
           }
           InputLeftElement={
             <Select
@@ -69,6 +91,9 @@ export const SearchInput = (props: Props): ReactElement => {
             </Select>
           }
           placeholder="Enter URL"
+          onChangeText={(text: string) => {
+            handleTextchange(protocol, text);
+          }}
         />
         <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size="xs" />}>
           {errorMessage ? errorMessage : 'Error'}
